@@ -1,0 +1,6 @@
+@chattech_users_HostAddress = http://localhost:5165
+
+GET {{chattech_users_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
