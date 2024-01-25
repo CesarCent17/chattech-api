@@ -1,0 +1,14 @@
+# Migration Guide 💼
+# To perform a successful migration use the following commands 🚀:
+
+1. **To Package Manager Console**
+Add-Migration User -OutputDir "DataSource/Migrations"
+Update-Database
+
+2. **To .Net CLI**
+dotnet ef migrations add User --output-dir DataSource/Migrations
+dotnet ef database update
+
+# To reverse migrations:
+dotnet ef database update 'name_of_migration_to_which_we_will_return'
+dotnet ef remove migration

@@ -1,13 +1,16 @@
+using chattech_users.Dependencies;
+using chattech_users.Enums;
+using chattech_users.Interfaces;
+using chattech_users.Models;
+using chattech_users.Models.Dto;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+ServicesDependency.AddServices(builder.Services);
+builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,29 +19,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/api/user", async (IUserService _userService, UserDto userDto) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    var response = await _userService.AddUserAsync(userDto);
+    return response.Succeeded
+        ? Results.Ok(new ApiResponse<User>(response.Succeeded, response.Message, response.Data, (int)HttpStatusCode.Created))
+        : Results.BadRequest();
 })
-.WithName("GetWeatherForecast")
+.WithDescription("To create a user")
 .WithOpenApi();
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
